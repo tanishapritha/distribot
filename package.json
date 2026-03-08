@@ -1,0 +1,25 @@
+{
+  "name": "distribot",
+  "private": true,
+  "scripts": {
+    "dev": "npm run dev --workspaces --if-present",
+    "build": "npm run build --workspaces --if-present",
+    "start": "npm run start --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "db:push": "npm run db:push --workspace=db",
+    "db:generate": "npm run db:generate --workspace=db",
+    "db:studio": "npm run db:studio --workspace=db"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "devDependencies": {
+    "eslint": "^8.56.0",
+    "prettier": "^3.2.5",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "pg": "^8.20.0"
+  }
+}
