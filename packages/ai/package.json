@@ -1,8 +1,0 @@
-{
-    "name": "ai",
-    "version": "0.1.0",
-    "main": "./index.ts",
-    "dependencies": {
-        "groq-sdk": "^0.3.3"
-    }
-}
