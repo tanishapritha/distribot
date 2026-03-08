@@ -5,6 +5,11 @@ import { NextResponse } from "next/server";
 export const dynamic = 'force-dynamic';
 
 export async function POST(req: Request) {
+    // Build-time guard
+    if (process.env.NEXT_PHASE === 'phase-production-build') {
+        return NextResponse.json({ success: true });
+    }
+
     try {
         const body = await req.json();
         const { email, product_url, category } = body;
