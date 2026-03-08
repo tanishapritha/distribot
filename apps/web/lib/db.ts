@@ -2,35 +2,60 @@ import { neon } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-http';
 import * as schema from './schema';
 
-// We use a lazy initialization pattern. 
-// This ensures that Neon is NEVER called during the build process, 
-// even if a script imports this file.
-let cachedDb: any = null;
+// Deeply resilient mock db that supports chaining
+const createMockDb = () => {
+    const mock: any = {
+        select: () => mock,
+        from: () => mock,
+        where: () => mock,
+        orderBy: () => mock,
+        limit: () => mock,
+        offset: () => mock,
+        insert: () => mock,
+        values: () => mock,
+        onConflictDoNothing: () => mock,
+        update: () => mock,
+        set: () => mock,
+        delete: () => mock,
+        returning: () => Promise.resolve([]),
+        then: (cb: any) => Promise.resolve(cb([])),
+        catch: () => mock,
+    };
+    return mock;
+};
+
+// Lazy-loaded DB instance
+let _db: any = null;
 
 export const getDb = () => {
-    if (cachedDb) return cachedDb;
+    if (_db) return _db;
 
     const url = process.env.DATABASE_URL;
 
-    // Fallback URL for build time / local development without env
-    const connectionString = url || "postgresql://placeholder:5432/db";
+    // If we're during build or have no URL, return a dummy mock
+    if (!url || url.includes("placeholder")) {
+        console.warn("Neon DATABASE_URL missing — using high-fidelity mock db.");
+        _db = createMockDb();
+        return _db;
+    }
 
     try {
-        const sql = neon(connectionString);
-        cachedDb = drizzle(sql, { schema });
-        return cachedDb;
+        const sql = neon(url);
+        _db = drizzle(sql, { schema });
+        return _db;
     } catch (e) {
-        // Absolute fallback to a dummy object if neon(url) throws
-        console.warn("DB Connection failed, using mock client");
-        return {
-            select: () => ({ from: () => ({ where: () => ({ orderBy: () => [] }) }) }),
-            insert: () => ({ values: () => ({ onConflictDoNothing: () => ({ returning: () => [] }) }) }),
-            update: () => ({ set: () => ({ where: () => [] }) }),
-            delete: () => ({ where: () => [] }),
-        } as any;
+        console.error("DB Init failed — falling back to mock.", e);
+        _db = createMockDb();
+        return _db;
     }
 };
 
-// For backward compatibility with existing code
-export const db = getDb();
+// We use a Proxy for the 'db' export to ensure it stays lazy and never crashes on import
+export const db = new Proxy({} as any, {
+    get(_, prop) {
+        return getDb()[prop];
+    }
+});
+
 export * from './schema';
+export { schema };

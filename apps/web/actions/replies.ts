@@ -1,13 +1,15 @@
 "use server"
 
 import { db, replies } from "@/lib/db";
-import { auth } from "@clerk/nextjs/server";
+import { getAuthSafe } from "@/lib/auth-safe";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 export async function createAIReply(opportunityId: string) {
-    const { userId } = await auth();
-    if (!userId) throw new Error("Unauthorized");
+    const { userId } = await getAuthSafe();
+    if (!userId) {
+        return { text: "Authentication required to generate replies.", status: 'draft' };
+    }
 
     // Mock AI generation for now if Groq is not configured
     const mockReply = "This looks like a great opportunity for your product! Have you considered how our solution addresses this specific pain point? Happy to chat more.";

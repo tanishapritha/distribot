@@ -1,13 +1,13 @@
 "use server"
 
 import { db, projects } from "@/lib/db";
-import { auth } from "@clerk/nextjs/server";
+import { getAuthSafe } from "@/lib/auth-safe";
 import { eq } from "drizzle-orm";
 import { generateQueries } from "@/lib/ai";
 
 export async function getProjects() {
-    const { userId } = await auth();
-    if (!userId) throw new Error("Unauthorized");
+    const { userId } = await getAuthSafe();
+    if (!userId) return [];
 
     try {
         return await db.select().from(projects).where(eq(projects.userId, userId));
@@ -32,7 +32,7 @@ export type CreateProjectInput = {
 }
 
 export async function createProject(data: CreateProjectInput) {
-    const { userId } = await auth();
+    const { userId } = await getAuthSafe();
     if (!userId) throw new Error("Unauthorized");
 
     // Apply defaults

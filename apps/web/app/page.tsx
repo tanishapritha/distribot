@@ -9,9 +9,12 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { joinWaitlist } from "@/actions/waitlist";
-import { SignInButton, Show } from "@clerk/nextjs";
+import { SignInButton } from "@clerk/nextjs";
+import { getAuthSafe } from "@/lib/auth-safe";
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  const { userId } = await getAuthSafe();
+
   return (
     <div className="flex flex-col min-h-screen bg-[#0A0A0B] text-[#FAFAFA]">
 
@@ -23,18 +26,17 @@ export default function LandingPage() {
             <span className="text-sm font-semibold tracking-tight">Distribot</span>
           </div>
           <nav className="flex items-center gap-2">
-            <Show when="signed-out">
+            {userId ? (
+              <Button asChild size="sm" variant="ghost" className="text-zinc-400 hover:text-white text-xs">
+                <Link href="/dashboard">Dashboard</Link>
+              </Button>
+            ) : (
               <SignInButton mode="modal">
                 <Button variant="ghost" size="sm" className="text-zinc-400 hover:text-white text-xs">
                   Sign In
                 </Button>
               </SignInButton>
-            </Show>
-            <Show when="signed-in">
-              <Button asChild size="sm" variant="ghost" className="text-zinc-400 hover:text-white text-xs">
-                <Link href="/dashboard">Dashboard</Link>
-              </Button>
-            </Show>
+            )}
             <Button asChild size="sm" className="bg-amber-600 hover:bg-amber-700 text-white text-xs rounded-md font-medium">
               <Link href="#waitlist">Request Access</Link>
             </Button>

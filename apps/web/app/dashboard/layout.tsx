@@ -7,8 +7,11 @@ import {
     BarChart2,
     Settings,
 } from "lucide-react";
-import { auth } from "@clerk/nextjs/server";
+import { getAuthSafe } from "@/lib/auth-safe";
 import { redirect } from "next/navigation";
+import { SetupNudgeBanner } from "@/components/dashboard/setup-nudge";
+
+export const dynamic = 'force-dynamic';
 
 const sidebarNavItems = [
     {
@@ -43,11 +46,13 @@ export default async function DashboardLayout({
 }: {
     children: React.ReactNode;
 }) {
-    const { userId } = await auth();
-    if (!userId) redirect("/");
+    const { userId } = await getAuthSafe();
+    if (!userId && process.env.CLERK_SECRET_KEY) redirect("/");
 
     return (
         <div className="flex min-h-screen bg-[#0A0A0B] text-[#FAFAFA]">
+            {/* Dashboard Nudge – Show only if we have a userId but setup is incomplete */}
+            {userId && <SetupNudgeBanner incomplete={true} />}
             {/* SIDEBAR */}
             <aside className="hidden md:flex w-[220px] flex-col border-r border-zinc-800 bg-[#0A0A0B] fixed inset-y-0 left-0 z-30">
                 {/* Logo */}

@@ -1,13 +1,13 @@
 "use server"
 
 import { db, opportunities, projects } from "@/lib/db";
-import { auth } from "@clerk/nextjs/server";
+import { getAuthSafe } from "@/lib/auth-safe";
 import { eq, desc, inArray } from "drizzle-orm";
 import { findOpportunities } from "@/lib/discovery";
 
 export async function getOpportunities() {
-    const { userId } = await auth();
-    if (!userId) throw new Error("Unauthorized");
+    const { userId } = await getAuthSafe();
+    if (!userId) return [];
 
     try {
         const userProjects = await db.select().from(projects).where(eq(projects.userId, userId));
@@ -25,8 +25,8 @@ export async function getOpportunities() {
 }
 
 export async function getProjectOpportunities(projectId: string) {
-    const { userId } = await auth();
-    if (!userId) throw new Error("Unauthorized");
+    const { userId } = await getAuthSafe();
+    if (!userId) return [];
 
     try {
         return await db.select().from(opportunities).where(eq(opportunities.projectId, projectId)).orderBy(desc(opportunities.score));
@@ -37,8 +37,8 @@ export async function getProjectOpportunities(projectId: string) {
 }
 
 export async function runDiscoveryForUser() {
-    const { userId } = await auth();
-    if (!userId) throw new Error("Unauthorized");
+    const { userId } = await getAuthSafe();
+    if (!userId) return;
 
     try {
         const userProjects = await db.select().from(projects).where(eq(projects.userId, userId));
