@@ -63,16 +63,15 @@ export default async function LandingPage() {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
               <Button asChild className="bg-amber-600 hover:bg-amber-700 text-white px-6 h-10 rounded-md text-sm font-medium gap-2">
                 <Link href="#waitlist">
-                  Request Early Access <ArrowRight className="h-4 w-4" />
+                  Join the Waitlist <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>
               <Button asChild variant="outline" className="border-zinc-700 hover:border-zinc-500 text-zinc-300 px-6 h-10 rounded-md text-sm font-medium bg-transparent gap-2">
                 <Link href="/dashboard">
-                  View Demo <ChevronRight className="h-4 w-4" />
+                  Explore Demo <ChevronRight className="h-4 w-4" />
                 </Link>
               </Button>
             </div>
-            <p className="text-xs text-zinc-600">Used by 200+ indie founders. No spam.</p>
           </div>
 
           {/* HERO MOCKUP */}
@@ -187,31 +186,6 @@ export default async function LandingPage() {
           </div>
         </section>
 
-        {/* SOCIAL PROOF */}
-        <section className="py-12 px-6 border-t border-zinc-800">
-          <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-6">
-            {[
-              {
-                quote: "We cut our community outreach time from 3 hours a day to about 20 minutes. The reply quality is genuinely scary good.",
-                author: "Marcus T.",
-                product: "Founder, Logboard.io"
-              },
-              {
-                quote: "I was skeptical about AI replies feeling human. Distribot threads context in a way I didn't expect. My community trust score actually went up.",
-                author: "Priya S.",
-                product: "CEO, HireStack"
-              }
-            ].map((q, i) => (
-              <div key={i} className="border-l-2 border-amber-600 pl-5 py-2 bg-[#111113] border border-l-2 border-solid rounded-lg p-5">
-                <p className="text-sm text-zinc-300 leading-relaxed mb-4">"{q.quote}"</p>
-                <div>
-                  <p className="text-xs font-semibold text-white">{q.author}</p>
-                  <p className="text-xs text-zinc-500">{q.product}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
 
         {/* WAITLIST CTA */}
         <section id="waitlist" className="py-20 px-6 border-t border-zinc-800 bg-[#111113]">
