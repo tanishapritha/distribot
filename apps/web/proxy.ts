@@ -6,25 +6,22 @@ const isPublicRoute = createRouteMatcher([
     '/api/cron/discovery(.*)',
     '/sign-in(.*)',
     '/sign-up(.*)',
-    '/dashboard(.*)' // Temporarily public for frontend-only deployment
+    '/dashboard(.*)'
 ]);
 
-export default clerkMiddleware(async (auth, request) => {
-    // We bypass protection if keys are missing OR to ensure the frontend is always visible
-    if (!process.env.CLERK_SECRET_KEY) return;
-
-    if (!isPublicRoute(request)) {
-        await auth.protect();
+// Next.js 16 requires a single named 'proxy' export.
+// We only initialize Clerk if the secret key exists.
+export const proxy = (request: any, event: any) => {
+    if (!process.env.CLERK_SECRET_KEY) {
+        return; // Silent bypass for frontend-only mode
     }
-});
 
-// Named export for Next.js 16
-export const proxy = clerkMiddleware(async (auth, request) => {
-    if (!process.env.CLERK_SECRET_KEY) return;
-    if (!isPublicRoute(request)) {
-        await auth.protect();
-    }
-});
+    return clerkMiddleware(async (auth, req) => {
+        if (!isPublicRoute(req)) {
+            await auth.protect();
+        }
+    })(request, event);
+};
 
 export const config = {
     matcher: [
