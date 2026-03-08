@@ -4,6 +4,8 @@ import { RedirectToOnboarding } from "@/components/dashboard/redirect-onboarding
 import { Radar, MessageSquare, ExternalLink, ArrowRight, Globe } from "lucide-react";
 import Link from "next/link";
 
+export const dynamic = 'force-dynamic';
+
 export default async function DashboardPage() {
     const userProjects = await getProjects();
 

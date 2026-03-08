@@ -10,27 +10,36 @@ export async function GET(request: Request) {
         return new Response('Unauthorized', { status: 401 });
     }
 
-    const allProjects = await db.select().from(projects);
+    try {
+        const allProjects = await db.select().from(projects);
 
-    for (const project of allProjects) {
-        console.log(`Scanning opportunities for project: ${project.name}`);
-        const freshOpps = await findOpportunities(project);
-
-        for (const opp of freshOpps) {
+        for (const project of allProjects) {
+            console.log(`Scanning opportunities for project: ${project.name}`);
             try {
-                await db.insert(opportunities).values({
-                    projectId: project.id,
-                    platform: opp.platform,
-                    community: opp.community,
-                    title: opp.title,
-                    url: opp.url,
-                    score: Math.floor(Math.random() * 5) + 5, // Mock scoring for now
-                }).onConflictDoNothing();
-            } catch (e) {
-                // Skip duplicates
+                const freshOpps = await findOpportunities(project);
+
+                for (const opp of freshOpps) {
+                    try {
+                        await db.insert(opportunities).values({
+                            projectId: project.id,
+                            platform: opp.platform,
+                            community: opp.community,
+                            title: opp.title,
+                            url: opp.url,
+                            score: Math.floor(Math.random() * 5) + 5,
+                        }).onConflictDoNothing();
+                    } catch (e) {
+                        // Skip duplicates or insert errors
+                    }
+                }
+            } catch (discoveryError) {
+                console.error(`Discovery failed for project ${project.name}`, discoveryError);
             }
         }
-    }
 
-    return NextResponse.json({ success: true, projectCount: allProjects.length });
+        return NextResponse.json({ success: true, projectCount: allProjects.length });
+    } catch (globalError) {
+        console.error("Cron discovery failed — DB might be unreachable", globalError);
+        return NextResponse.json({ success: false, error: "Database unreachable" }, { status: 500 });
+    }
 }

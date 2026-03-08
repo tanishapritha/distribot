@@ -1,5 +1,7 @@
 import { BarChart2, TrendingUp, TrendingDown, MousePointer2, UserPlus, Zap } from "lucide-react";
 
+export const dynamic = 'force-dynamic';
+
 export default function AnalyticsPage() {
     const stats = [
         { label: "Total Scans", val: "4,821", icon: BarChart2, trend: "+12.4%", up: true },

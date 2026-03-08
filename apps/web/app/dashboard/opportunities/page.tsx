@@ -4,6 +4,8 @@ import { RefreshOpportunitiesButton } from "@/components/dashboard/refresh-butto
 import { OpportunitiesClient } from "@/components/dashboard/opportunities-client";
 import { SetupNudgeBanner } from "@/components/dashboard/setup-nudge";
 
+export const dynamic = 'force-dynamic';
+
 export default async function OpportunitiesPage() {
     const [opps, projects] = await Promise.all([
         getOpportunities(),
